@@ -1,0 +1,84 @@
+/* CSS Tùy chỉnh cho Hiệu ứng */
+html { scroll-behavior: smooth; }
+        
+/* 3. Hiệu ứng Glassmorphism và Sticky Header */
+#header {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(10px);
+    background-color: rgba(30, 41, 59, 0.7); /* Màu nền tối hơi trong suốt */
+    z-index: 1000;
+    transition: background-color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Scroll Effect: Thay đổi nền khi cuộn trang */
+#header.scrolled {
+    background-color: #1e293b; /* Màu nền đặc khi cuộn */
+    border-bottom: 1px solid #00bcd4;
+}
+
+/* Responsive - Menu Hamburger */
+/* 4. Mobile (<= 480px) */
+@media (max-width: 480px) {
+    #nav-menu {
+        display: none; 
+    }
+    #hamburger-btn {
+        display: block; 
+    }
+}
+
+/* 4. Tablet (<= 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    #features-container {
+        /* 4. Các tính năng hiển thị 2 cột trên Tablet */
+        grid-template-columns: repeat(2, 1fr);
+    }
+    #hamburger-btn {
+        display: none; 
+    }
+}
+
+/* 4. Desktop (> 768px) */
+@media (min-width: 769px) {
+    #features-container {
+        /* Hiển thị 4 cột trên Desktop */
+        grid-template-columns: repeat(4, 1fr);
+    }
+    #hamburger-btn {
+        display: none; 
+    }
+}
+
+/* 5. Tương tác: Hiệu ứng Hover mượt */
+.cta-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 188, 212, 0.5);
+}
+
+/* 3. Tư duy sáng tạo: Hiệu ứng Fade-in/Slide-in cho Features */
+.feature-item {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.feature-item.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* FIX LỖI: Cải thiện hiệu ứng thumbnail được chọn */
+.thumbnail {
+    transition: all 0.3s ease-in-out;
+}
+.thumbnail.active-thumbnail {
+    /* Tăng độ nổi bật cho thumbnail đang được chọn */
+    border-color: #00bcd4 !important; /* Đảm bảo màu primary luôn được áp dụng */
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.9);
+    transform: scale(1.05);
+}

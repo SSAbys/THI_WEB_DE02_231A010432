@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Liên Hệ Độc Lập - Nguyễn Văn A</title>
+    <!-- Tải Tailwind CSS và Font Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Cấu hình Tailwind và Font */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#4f46e5', /* Indigo 600 */
+                        'primary-dark': '#4338ca',
+                        'contact-bg': '#1f2937', /* Gray 800 for Contact contrast */
+                        'contact-text': '#f9fafb', /* Gray 50 */
+                    }
+                }
+            }
+        }
+
+        /* CSS Tùy chỉnh */
+        body {
+            background-color: #f3f4f6; /* Gray 100 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+        
+        /* Modal CSS */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.75);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- HEADER (Navigation đơn giản cho trang độc lập) -->
+    <header class="bg-primary shadow-lg sticky top-0 z-10">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="text-2xl font-black text-white">
+                Liên Hệ Với Tôi
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT - CONTACT SECTION -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section id="contact-page">
+            <div class="bg-contact-bg p-8 md:p-12 rounded-xl shadow-2xl max-w-2xl mx-auto border-4 border-primary/50">
+                <div class="text-center mb-8">
+                    <!-- Icon liên hệ (sử dụng SVG inline) -->
+                    <svg class="mx-auto h-16 w-16 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    
+                    <h2 class="text-4xl font-extrabold text-contact-text mb-2">Liên Hệ</h2>
+                    <p class="text-xl text-gray-400">Tôi rất mong nhận được tin nhắn từ bạn!</p>
+                </div>
+
+                <form id="contact-form" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-contact-text">Họ tên</label>
+                        <input type="text" id="name-input" required class="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-contact-text rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-contact-text">Email</label>
+                        <input type="email" id="email-input" required class="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-contact-text rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                        <p id="email-error" class="text-red-400 text-sm mt-1 hidden">Email không hợp lệ.</p>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-contact-text">Tin nhắn</label>
+                        <textarea id="message-input" rows="4" required class="mt-1 block w-full px-3 py-2 border border-gray-600 bg-gray-700 text-contact-text rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"></textarea>

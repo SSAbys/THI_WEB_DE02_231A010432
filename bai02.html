@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Đoán Số Ngẫu Nhiên (50-150)</title>
+    <!-- Tải Tailwind CSS và Font Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Cấu hình Tailwind và Font */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#4f46e5', /* Indigo 600 */
+                        'primary-dark': '#4338ca',
+                        'bg-light': '#f3f4f6', /* Gray 100 */
+                    }
+                }
+            }
+        }
+
+        /* CSS Tùy chỉnh */
+        body {
+            background-color: #1f2937; /* Gray 800 */
+        }
+        
+        /* Hiệu ứng Nút */
+        #guess-button {
+            transition: all 0.2s ease-in-out;
+        }
+        #guess-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+        }
+
+        /* ------------------ CSS Confetti ------------------ */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        /* Định nghĩa một hạt Confetti */
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            border-radius: 50%; /* Làm cho confetti có hình tròn/vuông */
+            animation: fall 3s ease-in forwards;
+        }
+
+        /* Keyframes cho hiệu ứng rơi */
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100vh) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    
+    <!-- Confetti Container (Ẩn/Hiện bằng JS) -->
+    <div id="confetti-container" class="confetti-container hidden"></div>
+
+    <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-2xl space-y-6">
+        <h1 class="text-3xl font-extrabold text-center text-gray-900">
+            Trò Chơi Đoán Số
+        </h1>
+        
+        <p class="text-center text-gray-600">
+            Hãy đoán một số ngẫu nhiên từ 50 đến 150.
+        </p>
+
+        <!-- Khối Input và Button -->
+        <div class="flex space-x-3">
+            <input type="number" id="guess-input" placeholder="Nhập số đoán của bạn" min="50" max="150" required
+                   class="flex-grow p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-lg">
+            
+            <button id="guess-button"
+                    class="bg-primary text-white font-bold p-3 rounded-lg shadow-md hover:bg-primary-dark whitespace-nowrap">
+                Đoán
+            </button>
+        </div>
+
+        <!-- Khối Kết Quả và Đếm lần thử -->
+        <div id="result-message" class="text-xl font-semibold text-center mt-4 p-3 rounded-lg bg-bg-light hidden">
+            <!-- Thông báo kết quả sẽ hiển thị ở đây -->
+        </div>
+
+        <div class="text-center text-gray-700">
+            <p id="attempts-count" class="text-lg font-medium">Số lần thử: 0</p>
+        </div>
+        
+        <!-- Nút Chơi Lại -->
+        <button id="new-game-button"
+                class="w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-green-600 transition duration-200 hidden">
+            Chơi Lại
+        </button>
+    </div>
+
+    <!-- Logic JavaScript -->
+    <script>
+        // --- CÁC BIẾN TOÀN CỤC ---
+        const MIN_NUM = 50;
+        const MAX_NUM = 150;
+        let targetNumber;
+        let attempts;
+
+        // --- ELEMENTS DOM ---
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-button');
+        const resultMessage = document.getElementById('result-message');
+        const attemptsCount = document.getElementById('attempts-count');
+        const newGameButton = document.getElementById('new-game-button');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        /**
+         * Logic 1: Tạo số ngẫu nhiên trong phạm vi [min, max]
+         * @returns {number} Số nguyên ngẫu nhiên
+         */
+        function generateRandomNumber() {
+            // Math.random() tạo số thực [0, 1)
+            // (MAX_NUM - MIN_NUM + 1) là tổng số lượng số có thể có (ví dụ 150 - 50 + 1 = 101 số)
+            // Sau khi nhân, kết quả là số thực [0, 101)
+            // Math.floor làm tròn xuống, kết quả là số nguyên [0, 100]
+            // Cộng MIN_NUM (50) để dời phạm vi lên [50, 150]
+            return Math.floor(Math.random() * (MAX_NUM - MIN_NUM + 1)) + MIN_NUM;
+        }
+
+        /**
+         * Bắt đầu một trò chơi mới
+         */
+        function initializeGame() {
+            targetNumber = generateRandomNumber();
+            attempts = 0;
+            
+            // Đặt lại trạng thái giao diện
+            attemptsCount.textContent = `Số lần thử: 0`;
+            resultMessage.textContent = '';
+            resultMessage.classList.add('hidden');
+            resultMessage.classList.remove('bg-red-200', 'bg-yellow-200', 'bg-green-200');
+            guessInput.value = '';
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+            guessButton.classList.remove('hidden');
+            newGameButton.classList.add('hidden');
+            confettiContainer.classList.add('hidden');
+            confettiContainer.innerHTML = ''; // Xóa confetti cũ
+        }
+
+        /**
+         * Logic 2: Xử lý Input và so sánh kết quả
+         */
+        function checkGuess() {
+            // 1. Lấy và Xử lý Input (Input Validation & Parsing)
+            const guess = parseInt(guessInput.value, 10);
+            
+            // Xóa thông báo cũ
+            resultMessage.classList.remove('bg-red-200', 'bg-yellow-200');
+            resultMessage.classList.add('hidden');
+
+            // 2. Kiểm tra tính hợp lệ của input
+            if (isNaN(guess) || guess < MIN_NUM || guess > MAX_NUM) {
+                displayResult(`Vui lòng nhập một số hợp lệ trong khoảng ${MIN_NUM} đến ${MAX_NUM}.`, 'bg-red-200');
+                return; // Ngừng xử lý nếu input không hợp lệ
+            }
+
+            attempts++;
+            attemptsCount.textContent = `Số lần thử: ${attempts}`;
+            resultMessage.classList.remove('hidden');
+
+            // 3. So sánh kết quả
+            if (guess === targetNumber) {
+                // Thắng
+                displayResult(`Chúc mừng! Bạn đã đoán đúng số ${targetNumber} sau ${attempts} lần thử!`, 'bg-green-200');
+                handleWin();
+            } else if (guess < targetNumber) {
+                // Quá thấp
+                displayResult('Quá thấp. Hãy thử lại!', 'bg-yellow-200');
+                guessInput.value = '';
+            } else {
+                // Quá cao
+                displayResult('Quá cao. Hãy thử lại!', 'bg-yellow-200');
+                guessInput.value = '';
+            }
+        }
+
+        /**
+         * Hiển thị kết quả trên giao diện
+         * @param {string} message - Nội dung thông báo
+         * @param {string} bgColorClass - Class màu nền (ví dụ: 'bg-red-200')
+         */
+        function displayResult(message, bgColorClass) {
+            resultMessage.textContent = message;
+            resultMessage.className = `text-xl font-semibold text-center mt-4 p-3 rounded-lg ${bgColorClass}`;
+        }
+
+        /**
+         * Xử lý trạng thái khi người chơi thắng
+         */
+        function handleWin() {
+            guessInput.disabled = true;
+            guessButton.disabled = true;
+            guessButton.classList.add('hidden');
+            newGameButton.classList.remove('hidden');
+            
+            // Kích hoạt Confetti
+            startConfetti();
+        }
+
+        /**
+         * Tạo và kích hoạt hoạt ảnh Confetti CSS đơn giản
+         */
+        function startConfetti() {
+            confettiContainer.classList.remove('hidden');
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#4caf50', '#ffeb3b', '#ff9800', '#ff5722'];
+            const numConfetti = 50;
+
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Vị trí ngang ngẫu nhiên (0% - 100% chiều rộng)
+                confetti.style.left = Math.random() * 100 + 'vw'; 
+                
+                // Màu ngẫu nhiên
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; 
+                
+                // Thời gian trễ ngẫu nhiên (tạo hiệu ứng rơi dàn trải)
+                confetti.style.animationDelay = Math.random() * -3 + 's'; 
+                
+                confettiContainer.appendChild(confetti);
+            }
+
+            // Xóa Confetti sau khi animation kết thúc (3.5s)
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+                confettiContainer.classList.add('hidden');
+            }, 3500);
+        }
+
+        // --- GẮN SỰ KIỆN ---
+        guessButton.addEventListener('click', checkGuess);
+        guessInput.addEventListener('keydown', (e) => {
+            // Cho phép người dùng nhấn Enter để đoán
+            if (e.key === 'Enter') {
+                checkGuess();
+            }
+        });
+        newGameButton.addEventListener('click', initializeGame);
+
+        // Khởi tạo trò chơi khi tải trang
+        initializeGame();
+    </script>
+</body>
+</html>

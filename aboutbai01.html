@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về Người Sáng Lập - Trang Cá Nhân Độc Lập</title>
+    <!-- Tải Tailwind CSS và Font Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Cấu hình Tailwind và Font */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#4f46e5', /* Indigo 600 */
+                        'primary-dark': '#4338ca',
+                    }
+                }
+            }
+        }
+
+        /* CSS Tùy chỉnh */
+        body {
+            background-color: #f3f4f6; /* Gray 100 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+        
+        /* Hiệu ứng filter cho ảnh cá nhân */
+        #avatar-img {
+            filter: grayscale(80%) sepia(20%) hue-rotate(200deg);
+            transition: filter 0.5s ease-in-out;
+        }
+
+        #avatar-img:hover {
+            filter: none;
+        }
+
+        /* Modal CSS */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.75);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* CSS cho Hobby List */
+        .hobby-item {
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .hobby-item:hover {
+            transform: translateX(5px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- HEADER (Navigation đơn giản cho trang độc lập) -->
+    <header class="bg-primary shadow-lg sticky top-0 z-10">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="text-2xl font-black text-white">
+                Về Người Sáng Lập
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT (Chỉ chứa SECTION About) -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- 2. ABOUT SECTION (Thông tin cá nhân & Sở thích) -->
+        <section id="about-page" class="page-section">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Về Người Sáng Lập</h2>
+            </div>
+            
+            <div id="about-content" class="bg-white p-8 rounded-xl shadow-2xl grid md:grid-cols-3 gap-8 transition-colors duration-500">
+                
+                <!-- Cột 1: Avatar và thông tin cơ bản -->
+                <div class="md:col-span-1 text-center">
+                    <img id="avatar-img" 
+                         src="images/avatar.jpg" 
+                         alt="Ảnh cá nhân" 
+                         class="w-40 h-40 object-cover rounded-full mx-auto mb-4 border-4 border-primary">
+                    
+                    <h3 class="text-2xl font-bold text-gray-900">Trịnh Minh Hoàng Bảo</h3>
+                    <p class="text-gray-600">Ngày sinh: 16/12/2005</p>
+                    <hr class="my-4">
+                    
+                    <!-- Danh sách Sở thích -->
+                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Sở thích</h4>
+                    <ul id="hobby-list" class="space-y-2 text-left px-4">
+                        <li class="hobby-item bg-gray-100 p-2 rounded-md hover:bg-primary/20" data-hobby="Lập Trình Web">Lập Trình Web</li>
+                        <li class="hobby-item bg-gray-100 p-2 rounded-md hover:bg-primary/20" data-hobby="Chơi Guitar">Chơi Guitar</li>
+                        <li class="hobby-item bg-gray-100 p-2 rounded-md hover:bg-primary/20" data-hobby="Đọc Sách Khoa Học">Đọc Sách Khoa Học</li>
+                    </ul>
+                </div>
+                
+                <!-- Cột 2 & 3: Video Embed -->
+                <div class="md:col-span-2">
+                    <h4 class="text-2xl font-semibold text-gray-800 mb-3">Video yêu thích (Lập trình Web)</h4>
+                    <!-- Embed Video YouTube Placeholder -->
+                    <div class="aspect-w-16 aspect-h-9">
+                        <iframe width="100%" height="400" 
+                                src="https://www.youtube.com/embed/Z6uylatF5VY?si=BtFtYH8_64-TXC64"
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="rounded-lg shadow-lg"></iframe>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
+            <p id="copyright-text">
+                <!-- Nội dung copyright sẽ được cập nhật bằng JS -->
+            </p>
+            <p class="mt-2">
+                <a href="placeholder_hosting_guide.txt" target="_blank" class="text-indigo-400 hover:text-indigo-300">Hướng dẫn Hosting (placeholder)</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- MODAL TÙY CHỈNH (Thay thế Alert/Confirm) -->
+    <div id="custom-modal" class="modal fixed inset-0 flex items-center justify-center opacity-0 pointer-events-none z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full transform transition-transform duration-300 scale-90">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-900">Thông báo</h3>
+            <p id="modal-content" class="text-gray-700 mb-6"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-close-btn" class="bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition duration-150">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- CÁC BIẾN TOÀN CỤC ---
+        
+        // Dữ liệu sở thích
+        const hobbiesData = {
+            "Lập Trình Web": {
+                color: 'rgb(254, 243, 199)', // Yellow 100
+                description: "Đam mê xây dựng các ứng dụng web đẹp và hiệu quả bằng HTML, CSS và JavaScript hiện đại."
+            },
+            "Chơi Guitar": {
+                color: 'rgb(220, 252, 231)', // Green 100
+                description: "Thư giãn và sáng tạo âm nhạc với cây đàn acoustic, chủ yếu là thể loại dân gian và fingerstyle."
+            },
+            "Đọc Sách Khoa Học": {
+                color: 'rgb(219, 234, 254)', // Blue 100
+                description: "Thích khám phá vũ trụ, vật lý lượng tử và sinh học, mở rộng kiến thức về thế giới tự nhiên."
+            }
+        };
+
+        // --- DOM ELEMENTS ---
+        const aboutContent = document.getElementById('about-content');
+        const hobbyList = document.getElementById('hobby-list');
+        const copyrightText = document.getElementById('copyright-text');
+        
+        // Modal elements
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // --- HÀM HỖ TRỢ CHUNG ---
+
+        /**
+         * Hiển thị modal tùy chỉnh (thay thế alert/confirm).
+         * @param {string} title - Tiêu đề modal.
+         * @param {string} content - Nội dung thông báo.
+         */
+        function showCustomModal(title, content) {
+            modalTitle.textContent = title;
+            modalContent.textContent = content;
+            customModal.classList.remove('opacity-0', 'pointer-events-none');
+            // Thêm hiệu ứng transform cho nội dung modal
+            customModal.querySelector('div').classList.remove('scale-90');
+            customModal.querySelector('div').classList.add('scale-100');
+        }
+
+        /**
+         * Ẩn modal tùy chỉnh.
+         */
+        function hideCustomModal() {
+            customModal.classList.add('opacity-0', 'pointer-events-none');
+            customModal.querySelector('div').classList.add('scale-90');
+            customModal.querySelector('div').classList.remove('scale-100');
+        }
+        
+        // --- LOGIC ABOUT PAGE ---
+
+        /**
+         * Xử lý khi click vào sở thích.
+         */
+        function handleHobbyClick(event) {
+            const hobbyName = event.target.dataset.hobby;
+            const hobby = hobbiesData[hobbyName];
+            
+            if (hobby) {
+                // 1. Thay đổi background color của section
+                aboutContent.style.backgroundColor = hobby.color;
+                
+                // 2. Hiển thị mô tả sở thích bằng Custom Modal
+                showCustomModal("Thông tin Sở thích: " + hobbyName, hobby.description);
+            }
+        }
+        
+        // --- LOGIC FOOTER ---
+
+        /**
+         * Cập nhật năm hiện tại cho Copyright.
+         */
+        function updateCopyrightYear() {
+            const currentYear = new Date().getFullYear();
+            copyrightText.textContent = `Copyright © ${currentYear} Nguyễn Văn A. All Rights Reserved.`;
+        }
+
+        // --- GẮN SỰ KIỆN VÀ KHỞI CHẠY ---
+        
+        // Gắn sự kiện cho Sở thích
+        hobbyList.querySelectorAll('.hobby-item').forEach(item => {
+            item.addEventListener('click', handleHobbyClick);
+        });
+        
+        // Gắn sự kiện Đóng Modal
+        modalCloseBtn.addEventListener('click', hideCustomModal);
+        
+        // Khởi tạo các hàm khi tải trang
+        window.onload = () => {
+            updateCopyrightYear();
+        };
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Phát Nhạc Đơn Giản</title>
+    <!-- Tải Tailwind CSS và Font Inter -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Cấu hình Tailwind và Font */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#38bdf8', /* Sky 400 */
+                        'primary-dark': '#0ea5e9',
+                        'bg-dark': '#1e293b', /* Slate 800 */
+                    }
+                }
+            }
+        }
+
+        /* CSS Tùy chỉnh & Responsive Design */
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 16px;
+        }
+
+        /* 1. Player Card Styling */
+        .player-card {
+            background-color: #1f2937; /* Slate 800 */
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #38bdf8;
+        }
+
+        /* 2. Equalizer CSS */
+        .equalizer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            height: 60px;
+            margin: 20px 0;
+            padding: 0 10px;
+            background: #0f172a;
+            border-radius: 8px;
+        }
+
+        .equalizer-bar {
+            width: 4px;
+            height: 10%;
+            background-color: #38bdf8; 
+            transition: height 0.1s ease-out; /* Tạo chuyển động mượt mà */
+            border-radius: 2px;
+            margin: 0 1px;
+        }
+
+        /* 3. Controls & Seek Bar */
+        #seek-bar {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            background: #334155; /* Slate 700 */
+            border-radius: 4px;
+        }
+        /* Custom thumb (handle) for better visuals */
+        #seek-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #38bdf8;
+        }
+
+        .time-display {
+            text-align: right;
+            margin-top: 8px;
+            color: #94a3b8; /* Slate 400 */
+            font-size: 0.875rem;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background-color: #334155; /* Slate 700 */
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .play-pause-btn {
+            background-color: #38bdf8; /* Primary Color */
+            width: 64px;
+            height: 64px;
+        }
+
+        .control-btn:hover {
+            background-color: #475569; /* Slate 600 */
+        }
+        
+        .play-pause-btn:hover {
+            background-color: #0ea5e9; /* Primary Dark */
+        }
+
+        .control-btn svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .active {
+            color: #38bdf8;
+            background-color: #0f172a !important;
+            border: 2px solid #38bdf8;
+        }
+
+
+        /* 4. Playlist Styling */
+        .playlist-container {
+            background-color: #1e2937;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .playlist-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+            color: #e2e8f0;
+        }
+        
+        .playlist-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .playlist-item:hover {
+            background-color: #334155;
+        }
+
+        .active-song {
+            background-color: #334155; /* Slate 700 */
+            border-left: 4px solid #38bdf8;
+        }
+        
+        .active-song div:first-child {
+            color: #38bdf8; /* Highlight title */
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .player-card {
+                padding: 20px;
+            }
+            .control-btn {
+                width: 40px;
+                height: 40px;
+                padding: 8px;
+            }
+            .play-pause-btn {
+                width: 56px;
+                height: 56px;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <div class="main-container">
+
+        <!-- PLAYER CARD -->
+        <div class="player-card">
+            
+            <h1 class="title">Trình Phát Nhạc ABC</h1>
+            
+            <!-- Thông tin bài hát hiện tại -->
+            <div class="current-song text-center mb-6">
+                <h2 id="current-title" class="text-2xl font-bold text-white truncate">Tên bài hát</h2>
+                <p id="current-artist" class="text-sm text-gray-400">Nghệ sĩ/Placeholder</p>
+            </div>
+
+            <!-- VISUALIZER (EQUALIZER) -->
+            <div id="equalizer" class="equalizer-container">
+                <!-- Các thanh (bars) sẽ được tạo bởi JavaScript -->
+            </div>
+
+            <!-- CONTROLS -->
+            <div class="controls-container">
+                <!-- Audio Element (Thành phần quan trọng nhất) -->
+                <audio id="audio-player" preload="auto"></audio>
+                
+                <!-- Seek bar (Thanh tìm kiếm) -->
+                <input type="range" id="seek-bar" min="0" max="100" value="0" step="0.1">
+
+                <!-- Time Display -->
+                <div id="time-display" class="time-display">0:00 / 0:00</div>
+
+                <!-- Buttons (Shuffle, Prev, Play/Pause, Next, Loop) -->
+                <div class="button-group">
+                    <button id="shuffle-btn" class="control-btn" title="Xáo trộn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H3v3h13c2.21 0 4 1.79 4 4s-1.79 4-4 4H7v3h9c3.87 0 7-3.13 7-7s-3.13-7-7-7z"/><path d="M12 17v4m0-11V6"/></svg>
+                    </button>
+                    <button id="prev-btn" class="control-btn" title="Bài trước">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                    </button>
+                    <button id="play-pause-btn" class="control-btn play-pause-btn" title="Phát/Tạm dừng">
+                        <!-- Icon Play (sẽ được thay đổi bằng JS) -->
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <button id="next-btn" class="control-btn" title="Bài tiếp">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 18h2V6h-2zm-8.5 6l8.5-6V6z"/></svg>
+                    </button>
+                    <button id="loop-btn" class="control-btn" title="Lặp lại">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H5V7"/><path d="M10 12L5 7 10 2"/><path d="M7 7h12v10"/><path d="M14 12l5 5-5 5"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PLAYLIST CONTAINER -->
+        <div class="playlist-container">
+            <h3 class="playlist-title">Danh Sách Phát</h3>
+            <ul id="playlist-ul" class="space-y-1">
+                <!-- List items generated by JS -->
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- CÁC BIẾN TOÀN CỤC ---
+        
+        // MẢNG XẾP HÀNG (PLAYLIST)
+        const playlist = [
+            { id: 1, title: 'Bản Nhạc Mùa Hè', artist: 'Placeholder 1', src: 'audio/muahe.mp3' },
+            { id: 2, title: 'Giai Điệu Bình Minh', artist: 'Placeholder 2', src: 'audio/binhminh.mp3' },
+            { id: 3, title: 'Khoảnh Khắc Tĩnh Lặng', artist: 'Placeholder 3', src: 'audio/khoangkhac.mp3' },
+            { id: 4, title: 'Tương Lai Tươi Sáng', artist: 'Placeholder 4', url: 'https://cdn.pixabay.com/audio/2023/07/28/placeholder-147366.mp3' },
+        ];
+        
+        let currentSongIndex = 0; // CON TRỎ cho danh sách phát
+        let isPlaying = false;
+        let isShuffling = false;
+        let isLooping = false;
+        let animationFrameId = null; // ID cho requestAnimationFrame
+        
+        // --- ELEMENTS DOM ---
+        const audioPlayer = document.getElementById('audio-player');
+        const currentTitle = document.getElementById('current-title');
+        const currentArtist = document.getElementById('current-artist');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const loopBtn = document.getElementById('loop-btn');
+        const seekBar = document.getElementById('seek-bar');
+        const timeDisplay = document.getElementById('time-display');
+        const playlistUl = document.getElementById('playlist-ul');
+        const equalizer = document.getElementById('equalizer');
+
+        // Lấy các thanh equalizer
+        const NUM_BARS = 20;
+        for (let i = 0; i < NUM_BARS; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'equalizer-bar';
+            equalizer.appendChild(bar);
+        }
+        const bars = document.querySelectorAll('.equalizer-bar');
+
+
+        // --- LOGIC XỬ LÝ NHẠC ---
+
+        /**
+         * Tải bài hát vào trình phát.
+         * Logic tư duy: Sử dụng con trỏ (currentSongIndex) để quản lý vị trí bài hát.
+         * @param {number} index - Chỉ số bài hát trong mảng playlist.
+         */
+        function loadSong(index) {
+            if (index >= 0 && index < playlist.length) {
+                currentSongIndex = index;
+                const song = playlist[index];
+                audioPlayer.src = song.url;
+                currentTitle.textContent = song.title;
+                currentArtist.textContent = song.artist;
+                
+                // Cập nhật trạng thái loop của HTML Audio
+                audioPlayer.loop = isLooping;
+
+                // Cập nhật highlight trong danh sách phát
+                const listItems = playlistUl.querySelectorAll('.playlist-item');
+                listItems.forEach(li => li.classList.remove('active-song'));
+                if (listItems[index]) {
+                    listItems[index].classList.add('active-song');
+                }
+                
+                audioPlayer.load(); // Tải lại audio
+            }
+        }
+        
+        /**
+         * Cập nhật icon Play/Pause.
+         */
+        function updatePlayPauseIcon() {
+            playPauseBtn.innerHTML = isPlaying 
+                ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>' // Pause
+                : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; // Play
+        }
+
+        /**
+         * Bật/Tắt chế độ phát nhạc.
+         */
+        function playPause() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                stopEqualizer(); 
+            } else {
+                audioPlayer.play().catch(error => {
+                    // Xử lý lỗi nếu trình duyệt chặn tự động phát
+                    console.error("Lỗi khi phát nhạc (cần tương tác người dùng):", error);
+                });
+                startEqualizer();
+            }
+            isPlaying = !isPlaying;
+            updatePlayPauseIcon();
+        }
+        
+        /**
+         * Chuyển đến bài hát tiếp theo (có tính đến chế độ Shuffle).
+         */
+        function nextSong() {
+            if (isShuffling) {
+                let newIndex;
+                do {
+                    // Chọn ngẫu nhiên, đảm bảo không lặp lại ngay lập tức
+                    newIndex = Math.floor(Math.random() * playlist.length);
+                } while (newIndex === currentSongIndex && playlist.length > 1);
+                loadSong(newIndex);
+            } else {
+                // Chuyển bài tuần tự, lặp lại danh sách
+                currentSongIndex = (currentSongIndex + 1) % playlist.length;
+                loadSong(currentSongIndex);
+            }
+            if (isPlaying) {
+                audioPlayer.play();
+            } else {
+                // Nếu đang tạm dừng, chuyển sang trạng thái Play và bắt đầu phát
+                isPlaying = true;
+                audioPlayer.play();
+                updatePlayPauseIcon();
+                startEqualizer();
+            }
+        }
+
+        /**
+         * Chuyển đến bài hát trước đó.
+         */
+        function prevSong() {
+            // Quay lại bài trước hoặc quay lại bài cuối nếu đang ở bài đầu
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            loadSong(currentSongIndex);
+            
+            if (isPlaying) {
+                audioPlayer.play();
+            } else {
+                isPlaying = true;
+                audioPlayer.play();
+                updatePlayPauseIcon();
+                startEqualizer();
+            }
+        }
+        
+        /**
+         * Bật/Tắt chế độ Xáo trộn (Shuffle).
+         */
+        function toggleShuffle() {
+            isShuffling = !isShuffling;
+            shuffleBtn.classList.toggle('active', isShuffling);
+            if(isShuffling) {
+                 console.log("Chế độ Xáo trộn: BẬT");
+            } else {
+                 console.log("Chế độ Xáo trộn: TẮT");
+            }
+        }
+
+        /**
+         * Bật/Tắt chế độ Lặp lại (Loop).
+         */
+        function toggleLoop() {
+            isLooping = !isLooping;
+            loopBtn.classList.toggle('active', isLooping);
+            // Cập nhật thuộc tính loop của HTML Audio để trình duyệt tự xử lý lặp lại
+            audioPlayer.loop = isLooping;
+            if(isLooping) {
+                 console.log("Chế độ Lặp lại: BẬT");
+            } else {
+                 console.log("Chế độ Lặp lại: TẮT");
+            }
+        }
+
+        /**
+         * Định dạng thời gian (giây) sang phút:giây.
+         */
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        /**
+         * Cập nhật thời gian hiện tại và thanh tìm kiếm.
+         */
+        function updateTime() {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration || 0;
+            
+            if (!isNaN(duration) && isFinite(duration) && duration > 0) {
+                const seekPercent = (currentTime / duration) * 100;
+                seekBar.value = seekPercent;
+                timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            } else {
+                 timeDisplay.textContent = `${formatTime(currentTime)} / 0:00`;
+                 // Nếu audio chưa load xong, reset seek bar
+                 seekBar.value = 0;
+            }
+        }
+
+        /**
+         * Chuyển thời gian phát nhạc dựa trên vị trí thanh tìm kiếm.
+         */
+        function seek() {
+            const duration = audioPlayer.duration;
+            if (!isNaN(duration) && isFinite(duration)) {
+                // Tính toán thời gian mới dựa trên phần trăm (value) của thanh seek
+                const seekTime = (seekBar.value / 100) * duration;
+                audioPlayer.currentTime = seekTime;
+            }
+        }
+        
+        // --- LOGIC EQUALIZER (requestAnimationFrame) ---
+
+        /**
+         * Hoạt ảnh hóa Equalizer bằng cách thay đổi chiều cao thanh ngẫu nhiên.
+         * Logic tư duy: requestAnimationFrame (rAF) được sử dụng để đồng bộ hóa 
+         * animation với chu kỳ vẽ của trình duyệt, đảm bảo tốc độ 60fps mượt mà hơn 
+         * so với setInterval.
+         */
+        function animateEqualizer() {
+            bars.forEach(bar => {
+                // Tạo chiều cao ngẫu nhiên giả lập hiệu ứng âm thanh
+                // (Từ 20% đến 100% chiều cao tối đa)
+                const height = Math.random() * 80 + 20; 
+                bar.style.height = `${height}%`;
+            });
+            
+            if (isPlaying) {
+                 animationFrameId = requestAnimationFrame(animateEqualizer);
+            }
+        }
+
+        function startEqualizer() {
+            if (!animationFrameId) {
+                animateEqualizer();
+            }
+        }
+        
+        function stopEqualizer() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+                // Đưa các thanh về trạng thái tĩnh
+                bars.forEach(bar => bar.style.height = '10%');
+            }
+        }
+
+
+        // --- UI & KHỞI TẠO ---
+        
+        /**
+         * Tạo các mục trong danh sách phát (Playlist UI).
+         */
+        function renderPlaylist() {
+            playlistUl.innerHTML = ''; 
+            playlist.forEach((song, index) => {
+                const li = document.createElement('li');
+                li.className = 'playlist-item';
+                li.innerHTML = `
+                    <div class="truncate font-medium">${song.title}</div>
+                    <div class="text-xs text-gray-500 truncate">${song.artist}</div>
+                `;
+                // Gắn sự kiện click (sử dụng Closure để lưu index)
+                li.addEventListener('click', () => {
+                    loadSong(index);
+                    playPause(); 
+                });
+                playlistUl.appendChild(li);
+            });
+            
+            // Tải bài hát đầu tiên và cập nhật giao diện ban đầu
+            loadSong(currentSongIndex);
+            updatePlayPauseIcon();
+        }
+
+        /**
+         * Gắn các bộ lắng nghe sự kiện.
+         * Logic tư duy: Sử dụng hàm này để tập trung tất cả Event Listener, 
+         * giúp dễ dàng dọn dẹp (cleanup) nếu cần tái khởi tạo trình phát 
+         * (mặc dù không cần thiết trong ứng dụng một tệp này, đây vẫn là 
+         * một thói quen tốt để tránh rò rỉ bộ nhớ).
+         */
+        function attachEventListeners() {
+            playPauseBtn.addEventListener('click', playPause);
+            prevBtn.addEventListener('click', prevSong);
+            nextBtn.addEventListener('click', nextSong);
+            shuffleBtn.addEventListener('click', toggleShuffle);
+            loopBtn.addEventListener('click', toggleLoop);
+            
+            // Xử lý thanh tìm kiếm
+            seekBar.addEventListener('input', seek);
+            audioPlayer.addEventListener('timeupdate', updateTime);
+
+            // Tự động chuyển bài khi kết thúc
+            audioPlayer.addEventListener('ended', () => {
+                stopEqualizer();
+                // Chỉ chuyển bài nếu KHÔNG ở chế độ Lặp lại
+                if (!isLooping) {
+                    nextSong(); 
+                } else {
+                    // Nếu ở chế độ loop, trình duyệt tự play lại, ta chỉ cần khởi động equalizer
+                    startEqualizer(); 
+                }
+            });
+        }
+
+        // --- KHỞI CHẠY ---
+        window.onload = () => {
+            renderPlaylist();
+            attachEventListeners();
+        };
+
+    </script>
+</body>
+</html>
